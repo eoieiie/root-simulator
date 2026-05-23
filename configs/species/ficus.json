@@ -1,0 +1,14 @@
+{
+  "description": "일반식물 (고무나무, 산세베리아) — 균형 잡힌 성장",
+  "root": {
+    "initial_roots": 3,
+    "max_generation": 3,
+    "pruning_probability": 0.85,
+    "branches_per_pruning": [2, 6],
+    "radii_cm": [0.18, 0.10, 0.04],
+    "noise_deg": [8.0, 15.0, 25.0],
+    "max_angle_deg": [40.0, 80.0, 85.0],
+    "branch_angle_min": [0.0, -75.0, -85.0],
+    "branch_angle_max": [0.0, 75.0, 85.0]
+  }
+}

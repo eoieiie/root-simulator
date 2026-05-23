@@ -1,0 +1,284 @@
+{
+  "timestamp": "2026-05-23T21:37:33.849742",
+  "config_method": "random",
+  "config_n_candidates": 200,
+  "config_top_k": 5,
+  "config_n_eval_seeds": 3,
+  "config_seed": 42,
+  "species": {
+    "initial_roots": 3,
+    "max_generation": 3
+  },
+  "results": [
+    {
+      "rank": 1,
+      "n_airrooms": 4,
+      "mean_score": 11714.5,
+      "std_score": 451.3,
+      "all_scores": [
+        11128.4,
+        11788.9,
+        12226.3
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 11832.5,
+      "pruning_count": 8,
+      "soil_loss_ratio": 0.0311,
+      "spread_ratio": 0.268,
+      "pruning_by_zone": {
+        "lower": 0,
+        "middle": 8,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 8.89,
+          "z_cm": 15.73,
+          "radius_cm": 0.92
+        },
+        {
+          "r_cm": 2.32,
+          "z_cm": 18.24,
+          "radius_cm": 1.0
+        },
+        {
+          "r_cm": 5.2,
+          "z_cm": 14.64,
+          "radius_cm": 1.39
+        },
+        {
+          "r_cm": 2.97,
+          "z_cm": 8.44,
+          "radius_cm": 0.98
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "n_airrooms": 1,
+      "mean_score": 11688.1,
+      "std_score": 2280.7,
+      "all_scores": [
+        10508.1,
+        14877.7,
+        9678.4
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 9329.3,
+      "pruning_count": 7,
+      "soil_loss_ratio": 0.0043,
+      "spread_ratio": 0.2185,
+      "pruning_by_zone": {
+        "lower": 0,
+        "middle": 7,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 2.08,
+          "z_cm": 9.62,
+          "radius_cm": 0.81
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "n_airrooms": 8,
+      "mean_score": 11473.2,
+      "std_score": 1336.1,
+      "all_scores": [
+        10882.6,
+        10214.1,
+        13322.9
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 9887.2,
+      "pruning_count": 69,
+      "soil_loss_ratio": 0.0718,
+      "spread_ratio": 0.25,
+      "pruning_by_zone": {
+        "lower": 28,
+        "middle": 41,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 2.14,
+          "z_cm": 10.17,
+          "radius_cm": 1.22
+        },
+        {
+          "r_cm": 2.66,
+          "z_cm": 4.51,
+          "radius_cm": 1.23
+        },
+        {
+          "r_cm": 5.16,
+          "z_cm": 2.02,
+          "radius_cm": 1.23
+        },
+        {
+          "r_cm": 6.05,
+          "z_cm": 15.58,
+          "radius_cm": 1.2
+        },
+        {
+          "r_cm": 6.84,
+          "z_cm": 14.26,
+          "radius_cm": 1.19
+        },
+        {
+          "r_cm": 6.56,
+          "z_cm": 17.69,
+          "radius_cm": 0.84
+        },
+        {
+          "r_cm": 6.74,
+          "z_cm": 11.46,
+          "radius_cm": 1.19
+        },
+        {
+          "r_cm": 7.48,
+          "z_cm": 9.55,
+          "radius_cm": 1.21
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "n_airrooms": 9,
+      "mean_score": 11454.6,
+      "std_score": 2780.9,
+      "all_scores": [
+        9957.3,
+        15352.7,
+        9053.9
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 6469.2,
+      "pruning_count": 52,
+      "soil_loss_ratio": 0.0766,
+      "spread_ratio": 0.1603,
+      "pruning_by_zone": {
+        "lower": 0,
+        "middle": 52,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 10.51,
+          "z_cm": 9.52,
+          "radius_cm": 1.33
+        },
+        {
+          "r_cm": 9.02,
+          "z_cm": 12.44,
+          "radius_cm": 1.17
+        },
+        {
+          "r_cm": 6.75,
+          "z_cm": 15.23,
+          "radius_cm": 1.28
+        },
+        {
+          "r_cm": 10.87,
+          "z_cm": 5.92,
+          "radius_cm": 0.98
+        },
+        {
+          "r_cm": 9.34,
+          "z_cm": 7.97,
+          "radius_cm": 0.99
+        },
+        {
+          "r_cm": 8.0,
+          "z_cm": 15.18,
+          "radius_cm": 0.89
+        },
+        {
+          "r_cm": 1.27,
+          "z_cm": 10.82,
+          "radius_cm": 0.9
+        },
+        {
+          "r_cm": 6.72,
+          "z_cm": 7.58,
+          "radius_cm": 1.44
+        },
+        {
+          "r_cm": 5.96,
+          "z_cm": 18.64,
+          "radius_cm": 1.16
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "n_airrooms": 9,
+      "mean_score": 11241.6,
+      "std_score": 628.5,
+      "all_scores": [
+        10502.3,
+        12038.5,
+        11184.0
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 8801.5,
+      "pruning_count": 48,
+      "soil_loss_ratio": 0.0873,
+      "spread_ratio": 0.1613,
+      "pruning_by_zone": {
+        "lower": 30,
+        "middle": 18,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 7.07,
+          "z_cm": 14.84,
+          "radius_cm": 0.91
+        },
+        {
+          "r_cm": 6.72,
+          "z_cm": 16.36,
+          "radius_cm": 1.44
+        },
+        {
+          "r_cm": 6.0,
+          "z_cm": 13.16,
+          "radius_cm": 0.9
+        },
+        {
+          "r_cm": 3.28,
+          "z_cm": 11.63,
+          "radius_cm": 0.99
+        },
+        {
+          "r_cm": 2.74,
+          "z_cm": 7.91,
+          "radius_cm": 0.9
+        },
+        {
+          "r_cm": 7.64,
+          "z_cm": 13.74,
+          "radius_cm": 1.38
+        },
+        {
+          "r_cm": 9.16,
+          "z_cm": 10.61,
+          "radius_cm": 1.32
+        },
+        {
+          "r_cm": 2.5,
+          "z_cm": 4.34,
+          "radius_cm": 1.43
+        },
+        {
+          "r_cm": 5.3,
+          "z_cm": 11.7,
+          "radius_cm": 1.47
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "description": "열대식물 (몬스테라, 필로덴드론) — 왕성한 뿌리 성장, 넓은 분기",
+  "root": {
+    "initial_roots": 4,
+    "max_generation": 4,
+    "pruning_probability": 0.90,
+    "branches_per_pruning": [3, 7],
+    "radii_cm": [0.22, 0.14, 0.06, 0.03],
+    "noise_deg": [10.0, 18.0, 28.0, 35.0],
+    "max_angle_deg": [45.0, 80.0, 85.0, 88.0],
+    "branch_angle_min": [0.0, -80.0, -88.0, -90.0],
+    "branch_angle_max": [0.0, 80.0, 88.0, 90.0]
+  }
+}

@@ -1,0 +1,294 @@
+{
+  "timestamp": "2026-05-23T21:37:59.722231",
+  "config_method": "random",
+  "config_n_candidates": 200,
+  "config_top_k": 5,
+  "config_n_eval_seeds": 3,
+  "config_seed": 255,
+  "species": {
+    "initial_roots": 3,
+    "max_generation": 3
+  },
+  "results": [
+    {
+      "rank": 1,
+      "n_airrooms": 5,
+      "mean_score": 17228.8,
+      "std_score": 1872.4,
+      "all_scores": [
+        17032.5,
+        19614.0,
+        15040.1
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 13596.8,
+      "pruning_count": 29,
+      "soil_loss_ratio": 0.0337,
+      "spread_ratio": 0.4203,
+      "pruning_by_zone": {
+        "lower": 6,
+        "middle": 0,
+        "upper": 23
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 10.75,
+          "z_cm": 2.67,
+          "radius_cm": 1.31
+        },
+        {
+          "r_cm": 3.75,
+          "z_cm": 4.53,
+          "radius_cm": 0.82
+        },
+        {
+          "r_cm": 9.77,
+          "z_cm": 4.73,
+          "radius_cm": 0.87
+        },
+        {
+          "r_cm": 8.21,
+          "z_cm": 14.05,
+          "radius_cm": 1.14
+        },
+        {
+          "r_cm": 1.36,
+          "z_cm": 16.7,
+          "radius_cm": 0.84
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "n_airrooms": 2,
+      "mean_score": 14744.9,
+      "std_score": 2525.5,
+      "all_scores": [
+        17048.8,
+        11229.4,
+        15956.4
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 13109.2,
+      "pruning_count": 57,
+      "soil_loss_ratio": 0.0141,
+      "spread_ratio": 0.4388,
+      "pruning_by_zone": {
+        "lower": 0,
+        "middle": 0,
+        "upper": 57
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 1.02,
+          "z_cm": 15.73,
+          "radius_cm": 0.91
+        },
+        {
+          "r_cm": 3.24,
+          "z_cm": 16.13,
+          "radius_cm": 1.15
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "n_airrooms": 8,
+      "mean_score": 13883.2,
+      "std_score": 1075.8,
+      "all_scores": [
+        12693.4,
+        15299.3,
+        13656.7
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 12018.5,
+      "pruning_count": 33,
+      "soil_loss_ratio": 0.0589,
+      "spread_ratio": 0.3266,
+      "pruning_by_zone": {
+        "lower": 13,
+        "middle": 20,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 6.56,
+          "z_cm": 12.68,
+          "radius_cm": 1.08
+        },
+        {
+          "r_cm": 2.98,
+          "z_cm": 3.64,
+          "radius_cm": 0.92
+        },
+        {
+          "r_cm": 9.5,
+          "z_cm": 9.7,
+          "radius_cm": 1.31
+        },
+        {
+          "r_cm": 3.98,
+          "z_cm": 17.03,
+          "radius_cm": 0.82
+        },
+        {
+          "r_cm": 8.83,
+          "z_cm": 17.59,
+          "radius_cm": 1.43
+        },
+        {
+          "r_cm": 1.63,
+          "z_cm": 1.69,
+          "radius_cm": 0.94
+        },
+        {
+          "r_cm": 6.46,
+          "z_cm": 3.52,
+          "radius_cm": 0.96
+        },
+        {
+          "r_cm": 1.46,
+          "z_cm": 11.01,
+          "radius_cm": 0.86
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "n_airrooms": 9,
+      "mean_score": 13281.3,
+      "std_score": 2442.5,
+      "all_scores": [
+        14422.0,
+        15534.5,
+        9887.3
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 7504.6,
+      "pruning_count": 48,
+      "soil_loss_ratio": 0.0866,
+      "spread_ratio": 0.254,
+      "pruning_by_zone": {
+        "lower": 5,
+        "middle": 3,
+        "upper": 40
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 9.9,
+          "z_cm": 11.02,
+          "radius_cm": 1.07
+        },
+        {
+          "r_cm": 1.51,
+          "z_cm": 14.6,
+          "radius_cm": 1.07
+        },
+        {
+          "r_cm": 10.12,
+          "z_cm": 15.48,
+          "radius_cm": 1.48
+        },
+        {
+          "r_cm": 10.0,
+          "z_cm": 9.49,
+          "radius_cm": 0.96
+        },
+        {
+          "r_cm": 8.42,
+          "z_cm": 10.99,
+          "radius_cm": 1.2
+        },
+        {
+          "r_cm": 8.84,
+          "z_cm": 6.28,
+          "radius_cm": 1.1
+        },
+        {
+          "r_cm": 6.67,
+          "z_cm": 11.17,
+          "radius_cm": 1.23
+        },
+        {
+          "r_cm": 7.21,
+          "z_cm": 4.55,
+          "radius_cm": 1.25
+        },
+        {
+          "r_cm": 10.47,
+          "z_cm": 17.54,
+          "radius_cm": 1.45
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "n_airrooms": 9,
+      "mean_score": 13203.7,
+      "std_score": 2530.3,
+      "all_scores": [
+        9844.6,
+        13815.1,
+        15951.4
+      ],
+      "n_eval_seeds": 3,
+      "surface_area_mm2": 14516.7,
+      "pruning_count": 29,
+      "soil_loss_ratio": 0.0766,
+      "spread_ratio": 0.3819,
+      "pruning_by_zone": {
+        "lower": 7,
+        "middle": 22,
+        "upper": 0
+      },
+      "airroom_positions": [
+        {
+          "r_cm": 10.51,
+          "z_cm": 9.52,
+          "radius_cm": 1.33
+        },
+        {
+          "r_cm": 9.02,
+          "z_cm": 12.44,
+          "radius_cm": 1.17
+        },
+        {
+          "r_cm": 6.75,
+          "z_cm": 15.23,
+          "radius_cm": 1.28
+        },
+        {
+          "r_cm": 10.87,
+          "z_cm": 5.92,
+          "radius_cm": 0.98
+        },
+        {
+          "r_cm": 9.34,
+          "z_cm": 7.97,
+          "radius_cm": 0.99
+        },
+        {
+          "r_cm": 8.0,
+          "z_cm": 15.18,
+          "radius_cm": 0.89
+        },
+        {
+          "r_cm": 1.27,
+          "z_cm": 10.82,
+          "radius_cm": 0.9
+        },
+        {
+          "r_cm": 6.72,
+          "z_cm": 7.58,
+          "radius_cm": 1.44
+        },
+        {
+          "r_cm": 5.96,
+          "z_cm": 18.64,
+          "radius_cm": 1.16
+        }
+      ]
+    }
+  ]
+}

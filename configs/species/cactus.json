@@ -1,0 +1,14 @@
+{
+  "description": "건조식물 (선인장, 다육) — 느린 성장, 적은 분기, 얇은 뿌리",
+  "root": {
+    "initial_roots": 2,
+    "max_generation": 3,
+    "pruning_probability": 0.75,
+    "branches_per_pruning": [1, 4],
+    "radii_cm": [0.12, 0.07, 0.03],
+    "noise_deg": [6.0, 12.0, 20.0],
+    "max_angle_deg": [30.0, 70.0, 80.0],
+    "branch_angle_min": [0.0, -60.0, -80.0],
+    "branch_angle_max": [0.0, 60.0, 80.0]
+  }
+}

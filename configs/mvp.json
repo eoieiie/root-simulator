@@ -1,0 +1,59 @@
+{
+  "pot": {
+    "radius_cm": 12.0,
+    "height_cm": 20.0,
+    "voxel_size_cm": 0.5
+  },
+  "soil": {
+    "mix": {"배양토": 0.6, "펄라이트": 0.4}
+  },
+  "airroom": {
+    "max_count": 10,
+    "radius_range_cm": [0.8, 1.5],
+    "pruning_zone_factor": 1.25,
+    "shape": "tetrahedron"
+  },
+  "root": {
+    "initial_roots": 3,
+    "max_generation": 3,
+    "pruning_probability": 0.4,
+    "branches_per_pruning": [2, 6],
+    "step_size_cm": 0.4,
+    "radii_cm": [0.18, 0.10, 0.04],
+    "max_segment_steps": [200, 200, 150],
+    "noise_deg": [8.0, 15.0, 25.0],
+    "max_angle_deg": [40.0, 80.0, 85.0],
+    "branch_angle_min": [0.0, -75.0, -85.0],
+    "branch_angle_max": [0.0, 75.0, 85.0]
+  },
+  "tropism": {
+    "g": 1.0,
+    "h": 0.0,
+    "n": 0.0,
+    "softmax_beta": 1.0
+  },
+  "score": {
+    "surface_area_weight": 1.0,
+    "pruning_weight": 50.0,
+    "soil_loss_weight": 200.0
+  },
+  "search": {
+    "method": "random",
+    "n_candidates": 200,
+    "top_k": 5,
+    "n_eval_seeds": 3
+  },
+  "ga": {
+    "population": 20,
+    "generations": 10,
+    "elite_frac": 0.25,
+    "mutation_sigma_cm": 1.0,
+    "airroom_count": 10
+  },
+  "seed": 42,
+  "_extension_slots": {
+    "diffusion": {"enabled": false},
+    "uptake": {"enabled": false, "model": "linear"},
+    "ga": {"enabled": false}
+  }
+}
