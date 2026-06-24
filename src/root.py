@@ -228,7 +228,15 @@ class RootSystem:
         return False
 
     def _do_prune(self, seg: RootSegment) -> None:
-        """프루닝: 현재 팁 종료 → 부모 노드에서 다음 세대 분기."""
+        """프루닝: 현재 팁 종료 → 부모 노드에서 다음 세대 분기.
+
+        자식 뿌리 반경은 Pagès (2014) allometric 공식 사용:
+            radius_child = Dmin + slope × (radius_parent - Dmin)
+        여기서 slope = 0.25 (45종 쌍떡잎식물 평균, 0.14~0.36 범위),
+              Dmin = 0.01cm (가장 가는 뿌리 직경).
+        출처: Pagès (2014) Annals of Botany 114(3):591-598.
+              doi: 10.1093/aob/mcu138, PMC4204672.
+        """
         seg.active = False
         seg.pruned = True
         gen = seg.generation
@@ -241,7 +249,12 @@ class RootSystem:
         child_gen = gen + 1
         cg_idx = child_gen - 1
         rc = self.config.root
-        child_rad = rc.radii_cm[cg_idx] if cg_idx < len(rc.radii_cm) else 0.04
+
+        # Pagès (2014) allometric radius decay
+        _DMIN = 0.01  # cm — 가장 가는 뿌리 직경
+        _SLOPE = 0.25  # 중간값 (0.14~0.36 범위)
+        child_rad = _DMIN + _SLOPE * (seg.radius - _DMIN)
+
         ang_min = rc.branch_angle_min[cg_idx] if cg_idx < len(rc.branch_angle_min) else -80.0
         ang_max = rc.branch_angle_max[cg_idx] if cg_idx < len(rc.branch_angle_max) else 80.0
 

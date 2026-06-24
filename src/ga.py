@@ -1,9 +1,9 @@
 """유전 알고리즘 기반 에어룸 배치 최적화.
 
-GitHub Dream-no24/GwC-Simulation-System ga.py 참조.
-Adapted from 3D box pot → 2D r-z 단면.
-
-Genome: [(r0, z0), (r1, z1), ..., (rN, zN)] — N = GAConfig.airroom_count
+2D r-z 단면 최적화용 GA.
+Genome: [(r0, z0, radius0), (r1, z1, radius1), ..., (rN, zN, radiusN)]
+  N = GAConfig.airroom_count
+  radius는 에어룸 반경 (cm). genome에 포함시켜 재현성 확보.
 Fitness: G-Health Score (Pipeline.run)
 """
 from __future__ import annotations
@@ -16,7 +16,7 @@ from typing import Callable, List, Optional, Tuple
 from .config import SimConfig
 from .geometry import Airroom
 
-Genome = List[Tuple[float, float]]
+Genome = List[Tuple[float, float, float]]
 
 
 @dataclass
@@ -32,6 +32,7 @@ class GAResult:
     history_best: List[float]
     history_mean: List[float]
     n_evaluated: int
+    final_population: List[GAIndividual] = field(default_factory=list)  # top N 최종 개체군
 
 
 class GeneticOptimizer:
@@ -48,11 +49,13 @@ class GeneticOptimizer:
         config: SimConfig,
         fitness_fn: Callable[[List[Airroom]], float],
         rng: Optional[random.Random] = None,
+        seed_genome: Optional[Genome] = None,
     ):
         self.cfg = config
         self.ga_cfg = config.ga
         self.fitness_fn = fitness_fn
         self.rng = rng or random.Random(config.seed + 999)
+        self.seed_genome = seed_genome
 
         self.n_airrooms = self.ga_cfg.airroom_count
         self.pot_r = config.pot.radius_cm
@@ -60,20 +63,16 @@ class GeneticOptimizer:
         self.airroom_r_min: float = config.airroom.radius_range_cm[0]
         self.airroom_r_max: float = config.airroom.radius_range_cm[1]
 
-    # ── genome ↔ airrooms 변환 ───────────────────────────
-
     def _genome_to_airrooms(self, genome: Genome) -> List[Airroom]:
         return [
             Airroom(
                 r=r,
                 z=z,
-                radius=self.rng.uniform(self.airroom_r_min, self.airroom_r_max),
+                radius=radius,
                 pruning_zone_factor=self.cfg.airroom.pruning_zone_factor,
             )
-            for r, z in genome
+            for r, z, radius in genome
         ]
-
-    # ── 초기화 ────────────────────────────────────────────
 
     def _random_genome(self) -> Genome:
         margin = self.airroom_r_max * 2.0
@@ -81,11 +80,20 @@ class GeneticOptimizer:
         for _ in range(self.n_airrooms):
             r = self.rng.uniform(margin, self.pot_r - margin)
             z = self.rng.uniform(margin, self.pot_h - margin)
-            genome.append((r, z))
+            radius = self.rng.uniform(self.airroom_r_min, self.airroom_r_max)
+            genome.append((r, z, radius))
         return genome
 
     def _spawn_population(self, n: int) -> List[GAIndividual]:
-        return [GAIndividual(genome=self._random_genome()) for _ in range(n)]
+        pop = [GAIndividual(genome=self._random_genome()) for _ in range(n)]
+        # 시드 게놈이 있으면 첫 번째 개체로 삽입
+        if self.seed_genome is not None:
+            # 게놈 길이 맞추기 (부족하면 패딩, 넘치면 자름)
+            sg = list(self.seed_genome)
+            while len(sg) < self.n_airrooms:
+                sg.append(self._random_genome()[0])
+            pop[0] = GAIndividual(genome=sg[:self.n_airrooms])
+        return pop
 
     # ── 평가 ──────────────────────────────────────────────
 
@@ -95,19 +103,19 @@ class GeneticOptimizer:
         ind.fitness = self.fitness_fn(airrooms)
         return ind.fitness
 
-    # ── 변이 ──────────────────────────────────────────────
-
     def _mutate(self, genome: Genome) -> Genome:
         sigma = self.ga_cfg.mutation_sigma_cm
         idx = self.rng.randint(0, len(genome) - 1)
-        r, z = genome[idx]
+        r, z, radius = genome[idx]
         margin = self.airroom_r_max * 2.0
         r += self.rng.gauss(0, sigma)
         z += self.rng.gauss(0, sigma)
+        radius += self.rng.gauss(0, sigma * 0.3)
         r = max(margin, min(self.pot_r - margin, r))
         z = max(margin, min(self.pot_h - margin, z))
+        radius = max(self.airroom_r_min, min(self.airroom_r_max, radius))
         new = list(genome)
-        new[idx] = (r, z)
+        new[idx] = (r, z, radius)
         return new
 
     # ── 교차 ──────────────────────────────────────────────
@@ -159,4 +167,5 @@ class GeneticOptimizer:
             history_best=history_best,
             history_mean=history_mean,
             n_evaluated=n_eval,
+            final_population=pop[:max(10, pop_n)] if pop_n > 0 else [],
         )

@@ -977,3 +977,71 @@ ax.plot_surface(X, Y, Z, ...)
 |------|------|-----------|
 | 2026-05-22 | v2 | M1~M5 마일스톤 정의, MVP/확장 구분 |
 | 2026-05-23 | v2.1 | 부록 A 추가 (알고리즘 분석 + 3D 시각화 방향) |
+| 2026-06-12 | v2.2 | 학술 출처 12종 정리(부록B), 외부 DB 접근 절차(부록C), pruning_by_zone 용어 명확화 |
+
+---
+
+## 부록 B: 학술 출처 목록
+
+전체 인용 목록은 `README.md §11` 참조. 여기서는 시뮬레이터 파라미터와 직접 연결된 출처만 요약:
+
+| # | 출처 | 적용 항목 |
+|---|------|----------|
+| 1 | Schnepf et al. (2018) *Ann Bot* — CRootBox | 세대별 분기각(80°/85°), 분기간격 |
+| 2 | Pagès (2014) *Ann Bot* — Allometric radius | **자식뿌리 반경**: r_child = 0.01 + 0.25 × (r_parent − 0.01) |
+| 3 | Guo et al. (2008) *New Phytol* — 23수종 | 세대별 흡수효율(gen1=0.1×, gen3=1.0×) |
+| 4 | Craig et al. (2025) *New Phytol* — 77수종 | 양분흡수율 기준 (NH₄⁺ Imax) |
+| 5 | North & Nobel (1998) — Opuntia 탈수 | 프루닝 확정적 과정 근거 (P=1.0) |
+| 6 | PLOS ONE (2018) — Platycladus orientalis | 프루닝 후 측근 6배 증가 |
+| 7 | YUC9-mediated auxin pathway (2018) | 프루닝 분자 메커니즘 (옥신 축적 → 측근) |
+| 8 | Reid et al. (1998) — Arabidopsis 절단 | 측근 밀도 유의미 증가 (P=0.001) |
+
+**pruning_by_zone 용어 주의:**
+- 코드 내 `pruning_by_zone()`은 **z축 공간 위치**(lower/middle/upper) 통계일 뿐, 프루닝 강도 레벨이 아니다.
+- 프루닝은 항상 동일 동작 (팁 사멸 → 2~6개 측근 분기). 하/중/상 강도 구분 없음.
+- 현재 score에 미반영, 결과 지표로만 출력. 추후 "하단 프루닝 가중치" 도입 시 논의.
+
+---
+
+## 부록 C: 외부 데이터베이스 접근 절차
+
+### C1. FRED 3.0 (Fine-Root Ecology Database)
+
+| 항목 | 내용 |
+|------|------|
+| URL | https://roots.ornl.gov |
+| 비용 | **무료**, 오픈 액세스 |
+| 필요 계정 | 일반 이메일 (`.edu`/`.ac.kr` 불필요) |
+| 다운로드 | https://roots.ornl.gov/public-release → 이메일 등록 → 24h 토큰 → CSV |
+| 데이터 | 단일 CSV = 112MB. 330+ root trait, 150K+ observations |
+| Python | pandas로 직접 로드 (전용 SDK 없음) |
+| GWC 활용 | root diameter(F00679, 9,216 obs), branching intensity(F00179), fractal dimension(F00199), N uptake(F00780) |
+
+**1차 추천**: FRED를 먼저 CSV로 받아서 root diameter → radius 보정, branching intensity 검증.
+
+### C2. TRY Plant Trait Database
+
+| 항목 | 내용 |
+|------|------|
+| URL | https://www.try-db.org |
+| 비용 | **무료**, CC BY 라이선스 |
+| 필요 계정 | 일반 이메일 가능 |
+| 접근 | 데이터 요청 시스템 (수일 소요) 또는 TRY File Archive에서 개별 데이터셋 즉시 다운로드 |
+| Python SDK | `pip install TRYpros` (v2.2.2, 2025-04) |
+| R SDK | `install.packages("rtry")` (TRY 공식 지원) |
+| GWC 활용 | 종 커버리지가 넓음 (305K taxa). FRED에 없는 종 보정 시 활용. |
+
+**2차 추천**: FRED로 부족한 종이 있을 때 TRY 요청.
+
+### C3. 접근 전략
+
+```
+Phase 1 — FRED 다운로드 (즉시)
+  → root diameter로 allometric radius 검증
+  → branching intensity로 분기 파라미터 검증
+  → N uptake data로 흡수율 검증
+
+Phase 2 — TRY 요청 (필요시)
+  → 특정 종(몬스테라 등)이 FRED에 없으면
+  → TRY에서 경제적 트레이트(SRL, RTD) 요청
+```

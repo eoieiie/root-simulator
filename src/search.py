@@ -129,6 +129,7 @@ def run_ga_search(
     config: SimConfig,
     top_k: int = 5,
     eval_seeds: Optional[List[int]] = None,
+    seed_genome: Optional[Genome] = None,
 ) -> List[Dict]:
     """GA 탐색 실행. RandomSearch와 동일한 반환 포맷.
 
@@ -139,8 +140,9 @@ def run_ga_search(
         config: 설정
         top_k: 반환할 상위 개수
         eval_seeds: 평가용 시드 리스트 (None=seed만 사용)
+        seed_genome: 초기 개체군에 주입할 시드 게놈 (이전 최적 설계 계승)
     """
-    from .ga import GeneticOptimizer
+    from .ga import GeneticOptimizer, Genome
 
     eval_seeds = eval_seeds or [config.seed, 99, 177, 255, 333]
     pipeline = SimPipeline(config)
@@ -152,21 +154,47 @@ def run_ga_search(
             scores.append(r["score"]["total"])
         return sum(scores) / len(scores)
 
-    opt = GeneticOptimizer(config, fitness_fn=_fitness)
+    opt = GeneticOptimizer(config, fitness_fn=_fitness, seed_genome=seed_genome)
     ga_result = opt.run()
 
     def _build_entry(airrooms) -> Dict:
-        result = pipeline.run(
-            seed=config.seed,
-            airrooms_override=airrooms,
-            max_steps=500,
-        )
-        return _result_to_dict(airrooms, result, config.seed)
+        all_scores = []
+        last_result = None
+        for s in eval_seeds:
+            r = pipeline.run(seed=s, airrooms_override=airrooms, max_steps=500)
+            all_scores.append(r["score"]["total"])
+            last_result = r
+        mean_s = _mean_score(all_scores)
+        std_s = _std_score(all_scores)
+        return {
+            "airrooms": airrooms,
+            "n_airrooms": len(airrooms),
+            "seed": config.seed,
+            "score": last_result["score"],
+            "grid": last_result["grid"],
+            "root_system": last_result["root_system"],
+            "rank": 0,
+            "mean_score": mean_s,
+            "std_score": std_s,
+            "all_scores": all_scores,
+            "n_eval_seeds": len(eval_seeds),
+        }
 
-    entries = [_build_entry(ga_result.best.airrooms)]
-    entries[0]["ga_history_best"] = ga_result.history_best
-    entries[0]["ga_history_mean"] = ga_result.history_mean
-    entries[0]["ga_n_evaluated"] = ga_result.n_evaluated
+    # 최종 개체군의 상위 top_k개를 반환
+    candidates = [ga_result.best] + ga_result.final_population[:top_k]
+    seen = set()
+    unique = []
+    for ind in candidates:
+        key = tuple(sorted((a.r, a.z, a.radius) for a in ind.airrooms))
+        if key not in seen:
+            seen.add(key)
+            unique.append(ind)
+
+    entries = [_build_entry(ind.airrooms) for ind in unique[:top_k]]
+    if entries:
+        entries[0]["ga_history_best"] = ga_result.history_best
+        entries[0]["ga_history_mean"] = ga_result.history_mean
+        entries[0]["ga_n_evaluated"] = ga_result.n_evaluated
 
     entries.sort(key=lambda r: r["score"]["total"], reverse=True)
     for idx, r in enumerate(entries):

@@ -11,6 +11,7 @@ import random
 from typing import Dict, List, Optional
 
 from .config import SimConfig
+from .diffusion import run_diffusion
 from .geometry import (
     Airroom,
     generate_random_airrooms,
@@ -59,12 +60,16 @@ class SimPipeline:
             airrooms = generate_random_airrooms(self.config, n=n, rng=rng)
         render_airrooms_to_grid(grid, airrooms)
 
+        # Phase B-M6 — 자원 확산 (뿌리 성장 전 실행)
+        if self.config.diffusion.enabled:
+            run_diffusion(grid, self.config)
+
         # Phase B — 뿌리 성장
         root_system = RootSystem(self.config, grid, airrooms, rng=random.Random(seed))
         root_system.run(max_steps=max_steps)
 
-        # Phase C — 점수
-        score_result = compute_score(root_system, airrooms, self.config)
+        # Phase C — 점수 (M7 uptake 포함)
+        score_result = compute_score(root_system, airrooms, self.config, grid)
 
         # Phase E — 시각화 (옵션)
         fig = None

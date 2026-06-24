@@ -91,14 +91,62 @@ class RootConfig:
 class ScoreConfig:
     """G-Health Score 가중치.
 
-    각 항목이 최종 점수에 실질적으로 기여하도록 튜닝:
-    - surface: mm² 단위라 1.0이면 3000~12000 범위 (dominant)
-    - pruning: 50으로 해서 0~60회 → 0~3000 범위
-    - soil_loss: 200으로 해서 0~15% → 0~30 패널티
+    Score = surface × surface_area_weight
+          + pruning_count × pruning_weight
+          - soil_loss_ratio × soil_loss_weight
+          + n_uptake × uptake_weight                    (M7, enabled)
+
+    - surface: mm² 단위, 보통 3000~12000 (주축)
+    - pruning: 프루닝 1회당 가중치. 프루닝→분기→표면적 증가를 직접 보상.
+               학술적 근거: Platycladus air-pruning 연구 (PLOS ONE 2018)에서
+               프루닝 후 측근 6배 증가 확인. Reid et al. (1998) Arabidopsis
+               뿌리절단 실험에서 측근 밀도 유의미 증가 (P=0.001).
+    - soil_loss: 에어룸 체적 비율 패널티. 높을수록 흙손실 적게 유도.
+    - uptake_weight: 양분 흡수량(mg)당 점수 기여. (M7, 기본 2000)
     """
     surface_area_weight: float = 1.0
     pruning_weight: float = 50.0
-    soil_loss_weight: float = 200.0
+    soil_loss_weight: float = 1000.0
+    uptake_weight: float = 2000.0
+
+
+@dataclass
+@dataclass
+class DiffusionConfig:
+    """M6: Cellular Automata 자원 확산 파라미터.
+
+    initial_water_content: 급수 후 초기 수분 함량 (0~1)
+    water_diffusion_rate: 확산 계수 (클수록 빨리 퍼짐)
+    gravity_bias: 중력에 의한 하향 이동 비율
+    evaporation_rate: 표면 증발률 (iter당)
+    max_iterations: CA 최대 반복 횟수
+    convergence_threshold: 수렴 판정 임계값
+    nutrient_concentration: 물 대비 양분 농도 비율 (mg/cm³)
+    """
+    enabled: bool = False
+    initial_water_content: float = 0.8
+    water_diffusion_rate: float = 0.15
+    gravity_bias: float = 0.3
+    evaporation_rate: float = 0.02
+    max_iterations: int = 80
+    convergence_threshold: float = 1e-6
+    nutrient_concentration: float = 0.05
+
+
+@dataclass
+class UptakeConfig:
+    """M7: Michaelis-Menten 양분 흡수 파라미터.
+
+    model: "linear" (선형) or "mm" (Michaelis-Menten)
+    uptake_rate: 선형 모델 단위면적당 흡수율 (mg/mm²/day) ≈ 30 µg/cm²/day
+    vmax_nitrogen: MM 최대 흡수 속도 (mg/mm²/day)
+    km_nitrogen: MM 반포화 상수 (mg/cm³)
+    """
+    enabled: bool = False
+    model: str = "mm"
+    uptake_rate: float = 0.0003
+    vmax_nitrogen: float = 0.001
+    km_nitrogen: float = 0.05
 
 
 @dataclass
@@ -116,7 +164,7 @@ class SearchConfig:
 
 @dataclass
 class GAConfig:
-    """유전 알고리즘 파라미터 (GitHub Dream-no24 ga.py 참조).
+    """유전 알고리즘 파라미터.
 
     population: 한 세대 개체 수
     generations: 총 세대 수
@@ -147,13 +195,11 @@ class SimConfig:
     root: RootConfig = field(default_factory=RootConfig)
     tropism: TropismConfig = field(default_factory=TropismConfig)
     score: ScoreConfig = field(default_factory=ScoreConfig)
+    diffusion: DiffusionConfig = field(default_factory=DiffusionConfig)
+    uptake: UptakeConfig = field(default_factory=UptakeConfig)
     search: SearchConfig = field(default_factory=SearchConfig)
     ga: GAConfig = field(default_factory=GAConfig)
 
-    # extension slots – plan.md §13 _extension_slots 참조
-    diffusion_enabled: bool = False
-    uptake_enabled: bool = False
-    uptake_model: str = "linear"
     ga_enabled: bool = False
 
     seed: int = 42
@@ -180,18 +226,22 @@ class SimConfig:
             cfg.score = ScoreConfig(**d["score"])
         if "search" in d:
             cfg.search = SearchConfig(**d["search"])
+        if "diffusion" in d:
+            cfg.diffusion = DiffusionConfig(**d["diffusion"])
+        if "uptake" in d:
+            cfg.uptake = UptakeConfig(**d["uptake"])
         if "ga" in d:
             cfg.ga = GAConfig(**d["ga"])
         if "seed" in d:
             cfg.seed = int(d["seed"])
 
-        # 확장 슬롯
+        # 확장 슬롯 (이전 JSON 호환)
         ext = d.get("_extension_slots", {})
         if ext:
-            cfg.diffusion_enabled = ext.get("diffusion", {}).get("enabled", False)
+            cfg.diffusion.enabled = ext.get("diffusion", {}).get("enabled", False)
             upt = ext.get("uptake", {})
-            cfg.uptake_enabled = upt.get("enabled", False)
-            cfg.uptake_model = upt.get("model", "linear")
+            cfg.uptake.enabled = upt.get("enabled", False)
+            cfg.uptake.model = upt.get("model", "linear")
             cfg.ga_enabled = ext.get("ga", {}).get("enabled", False)
 
         return cfg
@@ -300,6 +350,24 @@ class SimConfig:
                 "surface_area_weight": self.score.surface_area_weight,
                 "pruning_weight": self.score.pruning_weight,
                 "soil_loss_weight": self.score.soil_loss_weight,
+                "uptake_weight": self.score.uptake_weight,
+            },
+            "diffusion": {
+                "enabled": self.diffusion.enabled,
+                "initial_water_content": self.diffusion.initial_water_content,
+                "water_diffusion_rate": self.diffusion.water_diffusion_rate,
+                "gravity_bias": self.diffusion.gravity_bias,
+                "evaporation_rate": self.diffusion.evaporation_rate,
+                "max_iterations": self.diffusion.max_iterations,
+                "convergence_threshold": self.diffusion.convergence_threshold,
+                "nutrient_concentration": self.diffusion.nutrient_concentration,
+            },
+            "uptake": {
+                "enabled": self.uptake.enabled,
+                "model": self.uptake.model,
+                "uptake_rate": self.uptake.uptake_rate,
+                "vmax_nitrogen": self.uptake.vmax_nitrogen,
+                "km_nitrogen": self.uptake.km_nitrogen,
             },
             "search": {
                 "method": self.search.method,
@@ -316,8 +384,8 @@ class SimConfig:
             },
             "seed": self.seed,
             "_extension_slots": {
-                "diffusion": {"enabled": self.diffusion_enabled},
-                "uptake": {"enabled": self.uptake_enabled, "model": self.uptake_model},
+                "diffusion": {"enabled": self.diffusion.enabled},
+                "uptake": {"enabled": self.uptake.enabled, "model": self.uptake.model},
                 "ga": {"enabled": self.ga_enabled},
             },
         }

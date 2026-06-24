@@ -1,12 +1,25 @@
-"""G-Health Score 계산 + 메트릭 모듈.
+"""G-Health Score 계산 — 표면적 + 프루닝 + 흙손실 패널티.
 
-plan.md §5 Phase C 참조.
-MVP 점수 = 뿌리 표면적 × w1 + 프루닝 횟수 × w2 - 흙 손실률 × w3.
-점수 항목은 확장 가능하게 dict로 관리한다.
+점수 공식:
+    Score = surface_area × surface_area_weight
+          + pruning_count × pruning_weight
+          - soil_loss_ratio × soil_loss_weight
+
+프루닝 점수 근거:
+    - Platycladus orientalis air-pruning (PLOS ONE 2018): 프루닝 72h 후
+      측근 6배 증가 관측.
+    - Reid et al. (1998) Arabidopsis 뿌리절단: 측근 밀도 유의미 증가 (P=0.001).
+    - YUC9-mediated auxin pathway (2018): 절단 부위 옥신 축적 → 측근 형성.
+
+양분흡수 메트릭 근거:
+    - 단위면적당 흡수율: Craig et al. (2025) 77수종 분석,
+      NH4 Imax ≈ 30 µg/cm²/day (사탕수수, McDonald et al.)
+    - 세대별 흡수 효율: Guo et al. (2008) 23수종 분석,
+      1차근=수송위주, 3차근=주흡수.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import numpy as np
 
@@ -14,42 +27,53 @@ from .config import SimConfig
 from .geometry import Airroom, airroom_volume_ratio
 from .grid import VoxelGrid
 from .root import RootSystem
+from .uptake import compute_uptake
 
 
 def compute_score(
     root_system: RootSystem,
     airrooms: List[Airroom],
     config: SimConfig,
+    grid: VoxelGrid,
 ) -> Dict:
     """G-Health Score 계산.
 
+    점수 = 표면적(mm²) × w_surface
+         + 프루닝횟수 × w_pruning
+         - 흙손실률 × w_soil_loss
+
     Returns:
         {
-            "total": float,         -- 최종 점수
+            "total": float,
             "components": {
-                "surface_area": float,   -- 표면적 점수 (mm² × w1)
-                "pruning": float,        -- 프루닝 점수 (횟수 × w2)
-                "soil_loss": float,      -- 흙 손실 패널티 (-ratio × w3)
+                "surface_area": float,
+                "pruning": float,
+                "soil_loss": float,
             },
             "metrics": {
                 "surface_area_mm2": float,
                 "pruning_count": int,
                 "soil_loss_ratio": float,
-                "pruning_by_zone": {"lower": int, "middle": int, "upper": int},
+                "pruning_by_zone": ...,
                 "total_airrooms": int,
                 "unused_airrooms": int,
+                "spread_ratio": float,
+                "estimated_n_uptake_mg": float,
             }
         }
     """
     w = config.score
     vr = airroom_volume_ratio(airrooms, config.pot.radius_cm, config.pot.height_cm)
     surf = root_system.total_surface_area()
-    prun = root_system.pruning_count()
+    pcount = root_system.pruning_count()
+
+    n_uptake = compute_uptake(root_system, grid, config) if config.uptake.enabled else 0.0
 
     components = {
         "surface_area": round(surf * w.surface_area_weight, 4),
-        "pruning": round(prun * w.pruning_weight, 4),
+        "pruning": round(pcount * w.pruning_weight, 4),
         "soil_loss": round(-vr * w.soil_loss_weight, 4),
+        "n_uptake": round(n_uptake * w.uptake_weight, 4),
     }
     total = round(sum(components.values()), 4)
 
@@ -61,12 +85,13 @@ def compute_score(
         "components": components,
         "metrics": {
             "surface_area_mm2": round(surf, 2),
-            "pruning_count": prun,
+            "pruning_count": pcount,
             "soil_loss_ratio": round(vr, 6),
             "pruning_by_zone": root_system.pruning_by_zone(),
             "total_airrooms": len(airrooms),
             "unused_airrooms": unused,
             "spread_ratio": round(spread, 4),
+            "n_uptake_mg": round(n_uptake, 6),
         },
     }
 
@@ -75,11 +100,6 @@ def _count_unused_airrooms(
     root_system: RootSystem,
     airrooms: List[Airroom],
 ) -> int:
-    """뿌리가 한 번도 안 닿은 에어룸 개수.
-
-    각 에어룸의 프루닝 영역 내 복셀 중 root_visits > 0인 게 하나라도 있으면
-    '사용됨'으로 판정.
-    """
     grid = root_system.grid
     unused = 0
     for ar in airrooms:
@@ -107,14 +127,9 @@ def _count_unused_airrooms(
 
 
 def _spatial_spread_ratio(root_system: RootSystem) -> float:
-    """뿌리가 화분 내부를 얼마나 골고루 탐색했는지 측정.
-
-    root_visits > 0 인 흙 복셀 비율. 1.0에 가까울수록
-    뿌리가 화분 전체에 퍼져 있음 (엉킴 없음).
-    """
-    grid = root_system.grid
-    total_soil = int(np.sum(grid.soil_type >= 0))
+    total_soil = int(np.sum(root_system.grid.soil_type >= 0))
     if total_soil == 0:
         return 0.0
-    visited = int(np.sum((grid.root_visits > 0) & (grid.soil_type >= 0)))
+    visited = int(np.sum((root_system.grid.root_visits > 0)
+                          & (root_system.grid.soil_type >= 0)))
     return visited / total_soil

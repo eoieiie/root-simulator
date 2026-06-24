@@ -4,9 +4,10 @@ __pycache__/
 *.pyo
 *.egg-info/
 
-# Output
+# Output - track only results JSON, ignore temp/generated
 output/*.png
-output/*.json
+output/sensitivity/
+output/ga_best_result.json
 
 # IDE
 .vscode/
@@ -19,4 +20,6 @@ Thumbs.db
 # Config override (local only)
 configs/local_*.json
 
-# OpenCode session state.omo/
+# OpenCode session state
+.omo/handoff.md
+.omo/run-continuation/

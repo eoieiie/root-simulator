@@ -2,7 +2,7 @@
   "pot": {
     "radius_cm": 12.0,
     "height_cm": 20.0,
-    "voxel_size_cm": 0.3
+    "voxel_size_cm": 0.15
   },
   "soil": {
     "mix": {"배양토": 1.0}
@@ -21,13 +21,13 @@
     "step_size_cm": 0.25,
     "radii_cm": [0.18, 0.10, 0.04],
     "max_segment_steps": [200, 200, 150],
-    "noise_deg": [8.0, 15.0, 25.0],
+    "noise_deg": [4.0, 15.0, 25.0],
     "max_angle_deg": [20.0, 80.0, 85.0],
     "branch_angle_min": [0.0, -75.0, -85.0],
     "branch_angle_max": [0.0, 75.0, 85.0]
   },
   "tropism": {
-    "g": 1.0,
+    "g": 1.5,
     "h": 0.0,
     "n": 0.0,
     "softmax_beta": 1.0
@@ -35,34 +35,16 @@
   "score": {
     "surface_area_weight": 1.0,
     "pruning_weight": 50.0,
-    "soil_loss_weight": 1000.0
-  },
-  "search": {
-    "method": "ga",
-    "n_candidates": 200,
-    "top_k": 5,
-    "n_eval_seeds": 5
-  },
-  "ga": {
-    "population": 25,
-    "generations": 15,
-    "elite_frac": 0.15,
-    "mutation_sigma_cm": 0.8,
-    "airroom_count": 10
-  },
-  "seed": 42,
-  "_extension_slots": {
-    "diffusion": {"enabled": true},
-    "uptake": {"enabled": true, "model": "mm"},
-    "ga": {"enabled": false}
+    "soil_loss_weight": 1000.0,
+    "uptake_weight": 2000.0
   },
   "diffusion": {
     "enabled": true,
     "initial_water_content": 0.8,
-    "water_diffusion_rate": 0.15,
-    "gravity_bias": 0.3,
+    "water_diffusion_rate": 0.08,
+    "gravity_bias": 0.15,
     "evaporation_rate": 0.02,
-    "max_iterations": 80,
+    "max_iterations": 200,
     "convergence_threshold": 1e-6,
     "nutrient_concentration": 0.05
   },
@@ -72,5 +54,24 @@
     "uptake_rate": 0.0003,
     "vmax_nitrogen": 0.001,
     "km_nitrogen": 0.05
+  },
+  "search": {
+    "method": "ga",
+    "n_candidates": 500,
+    "top_k": 5,
+    "n_eval_seeds": 10
+  },
+  "ga": {
+    "population": 50,
+    "generations": 30,
+    "elite_frac": 0.2,
+    "mutation_sigma_cm": 1.5,
+    "airroom_count": 10
+  },
+  "seed": 42,
+  "_extension_slots": {
+    "diffusion": {"enabled": true},
+    "uptake": {"enabled": true, "model": "mm"},
+    "ga": {"enabled": false}
   }
 }

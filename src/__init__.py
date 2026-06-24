@@ -1,7 +1,9 @@
-from .config import SimConfig, PotConfig, SoilConfig, AirroomConfig, RootConfig, ScoreConfig, SearchConfig
+from .config import SimConfig, PotConfig, SoilConfig, AirroomConfig, RootConfig, ScoreConfig, SearchConfig, DiffusionConfig, UptakeConfig
 from .grid import VoxelGrid
 from .geometry import Airroom, render_airrooms_to_grid, generate_random_airrooms
 from .root import RootSystem
+from .diffusion import run_diffusion
+from .uptake import compute_uptake
 from .score import compute_score
 from .viz import plot_single_run
 from .pipeline import SimPipeline

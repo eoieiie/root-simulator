@@ -124,19 +124,25 @@ def plot_info_box(
     metrics = result.get("metrics", {})
 
     lines = [
-        f"G-Health Score: {result.get('total', '?'):.2f}",
+        f"G-Health Score: {result.get('total', 0):.2f}",
         "",
-        f"Surface Area: {metrics.get('surface_area_mm2', '?'):.1f} mm²",
-        f"  weight: {comp.get('surface_area', '?'):.2f}",
-        f"Pruning: {metrics.get('pruning_count', '?')} times",
-        f"  weight: {comp.get('pruning', '?'):.2f}",
-        f"Soil Loss: {metrics.get('soil_loss_ratio', '?')*100:.2f}%",
-        f"  penalty: {comp.get('soil_loss', '?'):.2f}",
-        "",
-        f"Airrooms: {metrics.get('total_airrooms', '?')} total",
-        f"  unused: {metrics.get('unused_airrooms', '?')}",
-        f"Steps: {metrics.get('steps_run', '?')}",
+        f"Surface Area: {metrics.get('surface_area_mm2', 0):.1f} mm²",
+        f"  weight: {comp.get('surface_area', 0):.2f}",
+        f"Pruning: {metrics.get('pruning_count', 0)} times",
     ]
+    if "pruning" in comp:
+        lines.append(f"  weight: {comp['pruning']:.2f}")
+    lines.extend([
+        f"Soil Loss: {metrics.get('soil_loss_ratio', 0)*100:.2f}%",
+        f"  penalty: {comp.get('soil_loss', 0):.2f}",
+        "",
+        f"Est. N Uptake: {metrics.get('estimated_n_uptake_mg', 0):.4f} mg",
+        f"  per cm²: {metrics.get('estimated_n_uptake_per_cm2', 0):.6f} mg",
+        "",
+        f"Airrooms: {metrics.get('total_airrooms', 0)} total",
+        f"  unused: {metrics.get('unused_airrooms', 0)}",
+        f"Steps: {metrics.get('steps_run', 0)}",
+    ])
     z = metrics.get("pruning_by_zone", {})
     lines.append(f"Pruning: L{z.get('lower',0)} M{z.get('middle',0)} U{z.get('upper',0)}")
 

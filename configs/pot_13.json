@@ -1,15 +1,15 @@
 {
   "pot": {
-    "radius_cm": 12.0,
-    "height_cm": 20.0,
-    "voxel_size_cm": 0.3
+    "radius_cm": 6.5,
+    "height_cm": 15.0,
+    "voxel_size_cm": 0.2
   },
   "soil": {
     "mix": {"배양토": 1.0}
   },
   "airroom": {
-    "max_count": 10,
-    "radius_range_cm": [0.8, 1.5],
+    "max_count": 6,
+    "radius_range_cm": [0.5, 0.9],
     "pruning_zone_factor": 1.15,
     "shape": "tetrahedron"
   },
@@ -18,7 +18,7 @@
     "max_generation": 3,
     "pruning_probability": 1.0,
     "branches_per_pruning": [2, 6],
-    "step_size_cm": 0.25,
+    "step_size_cm": 0.2,
     "radii_cm": [0.18, 0.10, 0.04],
     "max_segment_steps": [200, 200, 150],
     "noise_deg": [8.0, 15.0, 25.0],
@@ -35,7 +35,25 @@
   "score": {
     "surface_area_weight": 1.0,
     "pruning_weight": 50.0,
-    "soil_loss_weight": 1000.0
+    "soil_loss_weight": 1000.0,
+    "uptake_weight": 2000.0
+  },
+  "diffusion": {
+    "enabled": true,
+    "initial_water_content": 0.8,
+    "water_diffusion_rate": 0.1,
+    "gravity_bias": 0.2,
+    "evaporation_rate": 0.02,
+    "max_iterations": 100,
+    "convergence_threshold": 1e-6,
+    "nutrient_concentration": 0.05
+  },
+  "uptake": {
+    "enabled": true,
+    "model": "mm",
+    "uptake_rate": 0.0003,
+    "vmax_nitrogen": 0.001,
+    "km_nitrogen": 0.05
   },
   "search": {
     "method": "ga",
@@ -48,29 +66,12 @@
     "generations": 15,
     "elite_frac": 0.15,
     "mutation_sigma_cm": 0.8,
-    "airroom_count": 10
+    "airroom_count": 6
   },
   "seed": 42,
   "_extension_slots": {
     "diffusion": {"enabled": true},
     "uptake": {"enabled": true, "model": "mm"},
     "ga": {"enabled": false}
-  },
-  "diffusion": {
-    "enabled": true,
-    "initial_water_content": 0.8,
-    "water_diffusion_rate": 0.15,
-    "gravity_bias": 0.3,
-    "evaporation_rate": 0.02,
-    "max_iterations": 80,
-    "convergence_threshold": 1e-6,
-    "nutrient_concentration": 0.05
-  },
-  "uptake": {
-    "enabled": true,
-    "model": "mm",
-    "uptake_rate": 0.0003,
-    "vmax_nitrogen": 0.001,
-    "km_nitrogen": 0.05
   }
 }

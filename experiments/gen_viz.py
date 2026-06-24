@@ -21,7 +21,7 @@ airrooms = generate_random_airrooms(cfg, n=cfg.airroom.max_count, rng=rng)
 render_airrooms_to_grid(grid, airrooms)
 rs = RootSystem(cfg, grid, airrooms, rng=random.Random(cfg.seed))
 rs.run(max_steps=500)
-result = compute_score(rs, airrooms, cfg)
+result = compute_score(rs, airrooms, cfg, grid)
 
 print(f"Score: {result['total']:.2f}")
 print(f"Surface: {result['metrics']['surface_area_mm2']:.1f} mm2")

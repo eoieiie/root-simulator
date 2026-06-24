@@ -24,8 +24,8 @@ tc = cfg.tropism
 print(f"  tropism: g={tc.g}, h={tc.h}, n={tc.n}")
 ga = cfg.ga
 print(f"  ga: pop={ga.population}, gen={ga.generations}, elite={ga.elite_frac}")
-assert tc.g == 1.0 and tc.h == 0.0 and tc.n == 0.0
-assert ga.population == 20 and ga.generations == 10
+assert tc.g == 1.5 and tc.h == 0.0 and tc.n == 0.0
+assert ga.population == 30 and ga.generations == 15
 print("  OK")
 
 # Test 2: GA basic run (fast: 3 pop, 2 gen)
@@ -55,8 +55,8 @@ print("  OK")
 # Test 3: GA vs Random Search (multi-seed fitness + 충분한 평가)
 print("\n[3] GA (pop=20, gen=10, n_air=10) vs Random (n=200)")
 cmp_cfg = SimConfig.from_json("E:/gwc-root-sim/configs/mvp.json")
-cmp_cfg.ga.population = 20
-cmp_cfg.ga.generations = 10
+cmp_cfg.ga.population = 30
+cmp_cfg.ga.generations = 15
 cmp_cfg.ga.airroom_count = 10
 cmp_cfg.ga.mutation_sigma_cm = 1.5
 

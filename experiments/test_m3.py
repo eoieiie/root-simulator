@@ -26,7 +26,7 @@ root_system.run(max_steps=500)
 
 # Test 1: compute_score returns valid structure
 print("[1] compute_score structure")
-result = compute_score(root_system, airrooms, cfg)
+result = compute_score(root_system, airrooms, cfg, grid)
 print(f"  total={result['total']:.2f}")
 print(f"  components: {result['components']}")
 print(f"  metrics: {result['metrics']}")
@@ -50,7 +50,7 @@ print("\n[3] Score without airrooms")
 grid3 = VoxelGrid(cfg)
 sys3 = RootSystem(cfg, grid3, [], rng=random.Random(42))
 sys3.run(max_steps=500)
-r3 = compute_score(sys3, [], cfg)
+r3 = compute_score(sys3, [], cfg, grid3)
 assert r3["metrics"]["pruning_count"] == 0
 assert r3["metrics"]["soil_loss_ratio"] == 0.0
 assert r3["components"]["pruning"] == 0.0
@@ -81,7 +81,7 @@ for seed in range(5):
     render_airrooms_to_grid(g, ar)
     rs = RootSystem(cfg, g, ar, rng=random.Random(seed))
     rs.run(max_steps=500)
-    sc = compute_score(rs, ar, cfg)
+    sc = compute_score(rs, ar, cfg, g)
     scores.append(sc["total"])
 print(f"  scores: {[f'{s:.1f}' for s in scores]}")
 assert len(set(round(s, 1) for s in scores)) > 1  # should vary
@@ -105,7 +105,7 @@ ar8 = generate_random_airrooms(cfg, n=cfg.airroom.max_count, rng=random.Random(9
 render_airrooms_to_grid(grid8, ar8)
 rs8 = RootSystem(cfg, grid8, ar8, rng=random.Random(99))
 rs8.run(max_steps=500)
-r8 = compute_score(rs8, ar8, cfg)
+r8 = compute_score(rs8, ar8, cfg, grid8)
 sl = -r8["components"]["soil_loss"]
 sr = r8["metrics"]["soil_loss_ratio"]
 print(f"  soil_loss_ratio={sr*100:.2f}% penalty={sl:.2f}")

@@ -91,13 +91,13 @@ def experiment_a_pruning_prob(
         top5 = run_search(cfg)
         elapsed = time.time() - t0
         runtimes.append(elapsed)
-        key = f"pp_{pp}"
+        key = f"expA_prune-prob_{pp:.2f}"
         results[key] = top5
         save_results(top5, cfg, str(output_dir / f"{key}.json"))
         print(f"\npruning_probability = {pp} ({elapsed:.0f}s)")
         print(_fmt_top5(top5))
 
-    ref_key = "pp_0.85"
+    ref_key = "expA_prune-prob_0.85"
     print(f"\n── 기준({ref_key}) 대비 Overlap ──")
     for key, top5 in results.items():
         ov = _top5_overlap(results[ref_key], top5)
@@ -121,32 +121,21 @@ def experiment_b_score_weights(
     results: Dict[str, List[Dict]] = {}
 
     print("\n" + "=" * 60)
-    print("실험 B: Score Weight 민감도")
+    print("실험 B: Score Weight 민감도 (soil_loss_weight)")
     print("=" * 60)
 
-    for pw in [4.0, 5.0, 6.0]:
-        cfg = deepcopy(base_cfg)
-        cfg.score.pruning_weight = pw
-        t0 = time.time()
-        top5 = run_search(cfg)
-        print(f"\npruning_weight = {pw} ({time.time()-t0:.0f}s)")
-        print(_fmt_top5(top5))
-        key = f"pw_{pw}"
-        results[key] = top5
-        save_results(top5, cfg, str(output_dir / f"{key}.json"))
-
-    for sw in [40.0, 50.0, 60.0]:
+    for sw in [40.0, 200.0, 500.0]:
         cfg = deepcopy(base_cfg)
         cfg.score.soil_loss_weight = sw
         t0 = time.time()
         top5 = run_search(cfg)
         print(f"\nsoil_loss_weight = {sw} ({time.time()-t0:.0f}s)")
         print(_fmt_top5(top5))
-        key = f"sw_{sw}"
+        key = f"expB_soil-loss-weight_{sw}"
         results[key] = top5
         save_results(top5, cfg, str(output_dir / f"{key}.json"))
 
-    ref_key = "pw_5.0"
+    ref_key = "expB_soil-loss-weight_200"
     print(f"\n── 기준({ref_key}) 대비 Overlap ──")
     for key, top5 in results.items():
         if key == ref_key:
@@ -183,8 +172,8 @@ def experiment_c_reproducibility(
         t0 = time.time()
         top5 = run_search(cfg)
         elapsed = time.time() - t0
-        results[f"seed_{seed}"] = top5
-        save_results(top5, cfg, str(output_dir / f"repro_seed_{seed}.json"))
+        results[f"expC_repro-seed{seed}"] = top5
+        save_results(top5, cfg, str(output_dir / f"expC_repro-seed{seed}.json"))
         print(f"\nseed = {seed} ({elapsed:.0f}s)")
         print(_fmt_top5(top5))
 
@@ -235,8 +224,8 @@ A. Pruning Probability:
    Overlap > 80%면 결과가 확률에 둔감함 (모델 안정적).
 
 B. Score Weights:
-   weight ±20%에서 1등 설계가 바뀌는지 확인.
-   1등이 바뀌면 현재 weight 근처에서 순위가 불안정한 영역.
+   soil_loss_weight ±20%에서 1등 설계가 바뀌는지 확인.
+   (pruning은 interval scoring으로 대체되어 weight 테스트 불필요)
 
 C. 재현성:
    1등 점수 CV < 10%: 재현성 우수.
