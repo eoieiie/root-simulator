@@ -1,4 +1,4 @@
-﻿# IR v2 - Procedural organic 3D root system
+# IR v2 - Procedural organic 3D root system
 # - Organic random growth with 3 generations
 # - Pruning → fine root explosion that KEEPS GROWING
 # - Numbers from real 2D engine, visuals from procedural generation
@@ -113,7 +113,7 @@ def grow_lateral(primary_roots, airrooms_3d, seed, is_control=False):
             bp = pri.pts[idx]
             ba = rng.uniform(0,2*math.pi)
             bz = -0.1 + rng.uniform(-0.15, 0.2)
-            lat = RootPath(bp, 2, 0.052)
+            lat = RootPath(bp, 2, 0.155)
             lat.dir = normalize([math.cos(ba), math.sin(ba), bz])
             pruned = False
             for _ in range(35):
@@ -133,7 +133,7 @@ def grow_lateral(primary_roots, airrooms_3d, seed, is_control=False):
                             for fi in range(rng.randint(8,14)):
                                 fa = rng.uniform(0,2*math.pi)
                                 fz = -0.1+rng.uniform(-0.15,0.1)
-                                fine = RootPath((px,py,pz), 3, 0.028)
+                                fine = RootPath((px,py,pz), 3, 0.133)
                                 fine.dir = normalize([math.cos(fa), math.sin(fa), fz])
                                 for _ in range(rng.randint(12,20)):
                                     if not fine.alive: break
@@ -153,7 +153,7 @@ def grow_lateral(primary_roots, airrooms_3d, seed, is_control=False):
                 tip = lat.pts[-1]
                 for fi in range(rng.randint(3,5)):
                     fa = rng.uniform(0,2*math.pi); fz = -0.15+rng.uniform(-0.1,0.1)
-                    fine = RootPath(tip, 3, 0.025)
+                    fine = RootPath(tip, 3, 0.133)
                     fine.dir = normalize([math.cos(fa), math.sin(fa), fz])
                     for _ in range(rng.randint(8,14)):
                         if not fine.alive: break
@@ -192,7 +192,9 @@ def plot_3d(ax, roots, pruning_pts, airrooms, title, show_airrooms=True):
         for cx,cy,cz,rad in airrooms:
             draw_tetrahedron(ax,cx,cy,cz,rad,alpha=0.25)
     cm = {1:C["gen1"],2:C["gen2"],3:C["gen3"]}
-    wm = {1:3.0,2:1.4,3:0.5}; am = {1:1.0,2:0.85,3:0.45}
+    # Line widths proportional to sqrt(radius) for visual hierarchy
+    # slope=0.85 radii: gen1=0.18, gen2=0.155, gen3=0.133
+    wm = {1:3.0,2:2.2,3:1.4}; am = {1:1.0,2:0.85,3:0.55}
     for gen in [1,2,3]:
         for r in roots:
             if r.gen != gen or len(r.pts) < 2: continue
@@ -208,7 +210,7 @@ def plot_3d(ax, roots, pruning_pts, airrooms, title, show_airrooms=True):
     ax.view_init(elev=22,azim=38); ax.grid(True,alpha=0.08)
     for d in 'xyz': getattr(ax,f'{d}axis').pane.fill = False
     ax.set_xlabel('X (cm)',fontsize=7); ax.set_ylabel('Y (cm)',fontsize=7)
-    ax.set_zlabel('높이 (cm)',fontsize=7)
+    ax.set_zlabel('Height (cm)',fontsize=7)
 
 def main():
     print("="*55)
@@ -228,8 +230,11 @@ def main():
     p_exp = st_exp['pruning_count']
     sc_ctrl = res_ctrl['score']['total']; sc_exp = res_exp['score']['total']
     upt_exp = res_exp['score']['metrics']['n_uptake_mg']
-    print(f"  Ctrl: {seg_ctrl}seg {s_ctrl:.0f}mm2 score={sc_ctrl:.0f}")
-    print(f"  Exp:  {seg_exp}seg {s_exp:.0f}mm2 pruning={p_exp} score={sc_exp:.0f}")
+    # Effective (absorption-weighted) surface area
+    eff_ctrl = res_ctrl["root_system"].effective_surface_area()
+    eff_exp = res_exp["root_system"].effective_surface_area()
+    print(f"  Ctrl: {seg_ctrl}seg {s_ctrl:.0f}mm2 eff={eff_ctrl:.0f} score={sc_ctrl:.0f}")
+    print(f"  Exp:  {seg_exp}seg {s_exp:.0f}mm2 eff={eff_exp:.0f} pruning={p_exp} score={sc_exp:.0f}")
 
     print("[2/5] 3D airrooms...")
     all_ar = assign_airroom_3d(OPTIMIZED_AIRROOMS,3)
@@ -252,26 +257,26 @@ def main():
     print("[5/5] Figure...")
     fig = plt.figure(figsize=(20,12))
     fig.patch.set_facecolor(C["bg"])
-    fig.suptitle('Garden with Couch — 에어프루닝 최적화 시뮬레이션',
+    fig.suptitle('Garden with Couch — Air-Pruning Optimization Simulation',
                  fontsize=18,fontweight='bold',y=0.98,color='#1B4332')
     fig.text(0.5,0.955,
-        f'유전 알고리즘(GA) {3*30*20}회 평가로 최적화된 6개 정사면체 에어룸 · 13cm 화분',
+        f'GA-optimized 6 tetrahedron airrooms · 13cm pot · {3*30*20} evaluations',
         ha='center',fontsize=10,color='#555')
 
     ax1 = fig.add_subplot(2,3,1,projection='3d')
-    plot_3d(ax1,ctrl_roots,[],[],'(A) 일반 화분 — 자연 성장',show_airrooms=False)
+    plot_3d(ax1,ctrl_roots,[],[],'(A) Control — Natural Growth',show_airrooms=False)
 
     ax2 = fig.add_subplot(2,3,2,projection='3d')
-    plot_3d(ax2,exp_roots,ppe,ar_disp,'(B) GwC 에어프루닝 팟',show_airrooms=True)
+    plot_3d(ax2,exp_roots,ppe,ar_disp,'(B) GwC Air-Pruning Pot',show_airrooms=True)
     leg = [
-        plt.Line2D([0],[0],color=C["gen1"],lw=2.5,label='중심뿌리 (1세대)'),
-        plt.Line2D([0],[0],color=C["gen2"],lw=1.4,label='곁뿌리 (2세대)'),
-        plt.Line2D([0],[0],color=C["gen3"],lw=0.6,label='잔뿌리 (3세대)'),
-        mpatches.Patch(facecolor=C["airroom_face"],edgecolor=C["airroom"],label='정사면체 에어룸'),
+        plt.Line2D([0],[0],color=C["gen1"],lw=2.5,label='Primary roots (Gen 1)'),
+        plt.Line2D([0],[0],color=C["gen2"],lw=1.4,label='Lateral roots (Gen 2)'),
+        plt.Line2D([0],[0],color=C["gen3"],lw=0.6,label='Fine roots (Gen 3)'),
+        mpatches.Patch(facecolor=C["airroom_face"],edgecolor=C["airroom"],label='Tetrahedron airroom'),
     ]
     if ppe: leg.append(plt.Line2D([0],[0],marker='*',color='w',
         markerfacecolor=C["pruning_star"],markersize=10,markeredgecolor='#333',
-        label=f'프루닝 (★ {len(ppe)}회)'))
+        label=f'Pruning (★ {len(ppe)})'))
     ax2.legend(handles=leg,loc='upper left',fontsize=7,framealpha=0.92,bbox_to_anchor=(0.0,1.02))
 
     ax3 = fig.add_subplot(2,3,3,projection='3d')
@@ -281,92 +286,137 @@ def main():
         for r in exp_roots:
             if r.gen!=gen or len(r.pts)<2: continue
             pts = np.array(r.pts)
-            w = {1:1.8,2:0.9,3:0.35}.get(gen,0.35)
+            w = {1:1.8,2:1.4,3:0.9}.get(gen,0.9)
             ax3.plot(pts[:,0],pts[:,1],pts[:,2],
                 color={1:C["gen1"],2:C["gen2"],3:C["gen3"]}.get(gen,C["gen3"]),
                 linewidth=w,alpha=0.7)
     for pt in ppe[:30]: ax3.scatter(pt[0],pt[1],pt[2],c=C["pruning_star"],s=50,
         marker='*',edgecolors='#333',linewidths=0.4,zorder=20)
     ax3.set_xlim(-POT_R,POT_R); ax3.set_ylim(-POT_R,POT_R); ax3.set_zlim(0,POT_H)
-    ax3.set_title('(C) 프루닝 → 잔뿌리 폭발',fontsize=11,fontweight='bold')
+    ax3.set_title('(C) Pruning → Fine Root Explosion',fontsize=11,fontweight='bold')
     ax3.view_init(elev=25,azim=20); ax3.grid(True,alpha=0.08)
     for d in 'xyz': getattr(ax3,f'{d}axis').pane.fill = False
 
+    # ── (D) Quantitative Metrics — 3 enlarged inset charts ──
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes
     ax4 = fig.add_subplot(2,3,4)
-    ctrln = [seg_ctrl,s_ctrl,sc_ctrl]; expn = [seg_exp,s_exp,sc_exp]
-    x = np.arange(3); w = 0.3
-    b1 = ax4.bar(x-w/2,ctrln,w,label='일반 화분',color=C["control"],edgecolor='#666',lw=0.8)
-    b2 = ax4.bar(x+w/2,expn,w,label='GwC 에어프루닝',color=C["gen2"],edgecolor='#333',lw=0.8)
-    mx = max(max(ctrln),max(expn))
-    for bar,v in zip(b1,ctrln):
-        ax4.text(bar.get_x()+bar.get_width()/2,bar.get_height()+mx*0.01,
-                 f'{v:.0f}',ha='center',fontsize=9,color='#666')
-    for bar,v,ov in zip(b2,expn,ctrln):
-        r = v/ov if ov>0 else 1; lbl = f'{v:.0f}'
-        if r>1.1: lbl += f'\n({r:.1f}배↑)'
-        ax4.text(bar.get_x()+bar.get_width()/2,bar.get_height()+mx*0.01,
-                 lbl,ha='center',fontsize=9,fontweight='bold',color=C["gen1"])
-    ax4.set_xticks(x); ax4.set_xticklabels(['뿌리\n세그먼트','표면적\n(mm²)','G-Health\nScore'],fontsize=10)
-    ax4.set_title('(D) 정량 비교 (2D 엔진)',fontsize=11,fontweight='bold')
-    ax4.legend(fontsize=9,loc='upper left'); ax4.set_ylim(0,mx*1.35)
-    ax4.grid(True,axis='y',alpha=0.3,ls='--')
-    ax4.spines['top'].set_visible(False); ax4.spines['right'].set_visible(False)
+    ax4.set_title('(D) Quantitative Metrics',fontsize=11,fontweight='bold')
 
-    ax5 = fig.add_subplot(2,3,5)
-    rj = os.path.join(PROJ_ROOT,"output","results_final.json")
-    if os.path.exists(rj):
-        with open(rj) as f: d = json.load(f)
-        rks = [r['rank'] for r in d['results']]
-        scs = [r['mean_score'] for r in d['results']]
-        sds = [r['std_score'] for r in d['results']]
-        ax5.bar(rks,scs,color=C["gen2"],edgecolor='#333',lw=0.8,width=0.6)
-        ax5.errorbar(rks,scs,yerr=sds,fmt='none',ecolor='#666',capsize=4,capthick=1.2,elinewidth=1.2)
-        for i,(s,sd) in enumerate(zip(scs,sds)):
-            ax5.text(i+1,s+sd+80,f'{s:.0f}\\pm{sd:.0f}',ha='center',fontsize=7.5,color='#333')
-        ax5.set_xticks(rks); ax5.set_xlabel('Rank',fontsize=9)
-        ax5.set_ylabel('G-Health Score',fontsize=9)
-        ax5.set_title('(E) 최적화 수렴 (GA Top5)',fontsize=11,fontweight='bold')
-        ax5.grid(True,axis='y',alpha=0.3,ls='--')
-        ax5.spines['top'].set_visible(False); ax5.spines['right'].set_visible(False)
+    def _bar_inset(parent, v_ctrl, v_exp, title, ylabel, anchor, fmt='.0f'):
+        """Create an enlarged bar inset for panel D."""
+        left, bottom, w, h = anchor
+        ax_in = inset_axes(parent, width=f'{w*100:.0f}%', height=f'{h*100:.0f}%',
+                           loc='upper left',
+                           bbox_to_anchor=(left, bottom, w, h),
+                           bbox_transform=parent.transAxes)
+        bw = 0.30
+        ax_in.bar(0 - bw/2, v_ctrl, bw, color=C["control"], edgecolor='#666', lw=0.8)
+        ax_in.bar(1 - bw/2, v_exp, bw, color=C["gen2"], edgecolor='#333', lw=0.8)
+        ax_in.set_xticks([0, 1])
+        ax_in.set_xticklabels(['Ctrl', 'Exp'], fontsize=9)
+        ax_in.set_ylabel(ylabel, fontsize=9)
+        ax_in.set_title(title, fontsize=10, fontweight='bold')
+        yrng = max(v_ctrl, v_exp) * 1.35
+        ax_in.text(0, v_ctrl + yrng * 0.03, f'{v_ctrl:{fmt}}',
+                   ha='center', fontsize=9, color='#666')
+        ratio = v_exp / max(v_ctrl, 1)
+        lbl = f'{v_exp:{fmt}} ({ratio:.1f}x)' if ratio > 1.05 else f'{v_exp:{fmt}}'
+        ax_in.text(1, v_exp + yrng * 0.03, lbl,
+                   ha='center', fontsize=9, fontweight='bold', color=C["gen1"])
+        ax_in.set_ylim(0, yrng)
+        ax_in.grid(True, axis='y', alpha=0.3, ls='--')
+        ax_in.spines['top'].set_visible(False)
+        ax_in.spines['right'].set_visible(False)
+        return ax_in
 
-    ax6 = fig.add_subplot(2,3,6); ax6.axis('off')
-    rs = sc_exp/max(sc_ctrl,1); rsurf = s_exp/max(s_ctrl,1)
+    # Left column: Segments (top) + Absorption Area (bottom)
+    _bar_inset(ax4, seg_ctrl, seg_exp, 'Root Segments', 'Count',
+               (0.02, 0.53, 0.47, 0.44))
+    _bar_inset(ax4, eff_ctrl, eff_exp, 'Absorption Area', 'mm²',
+               (0.02, 0.03, 0.47, 0.44))
+    # Right column: G-Health Score (full height, left-anchored)
+    _bar_inset(ax4, sc_ctrl, sc_exp, 'G-Health Score', 'Score',
+               (0.52, 0.03, 0.46, 0.94))
+
+    ax4.legend(handles=[
+        plt.Rectangle((0,0),1,1,facecolor=C["control"],edgecolor='#666',lw=0.8,label='Control'),
+        plt.Rectangle((0,0),1,1,facecolor=C["gen2"],edgecolor='#333',lw=0.8,label='GwC Air-Pruning'),
+    ], loc='lower center', fontsize=8, framealpha=0.9,
+       bbox_to_anchor=(0.24, 0.01, 0.46, 0.02), ncol=2)
+    ax4.axis('off')
+
+    # ── (E) Info box (replaces old Top5) ──
+    ax5 = fig.add_subplot(2,3,5); ax5.axis('off')
+    rs = sc_exp/max(sc_ctrl,1); reff = eff_exp/max(eff_ctrl,1)
     info = (
-        "━━━ 최적 설계 상세 ━━━\n\n"
-        "■ 탐색\n  유전 알고리즘 (GA)\n"
-        "  개체: 30 × 세대: 20\n"
-        f"  {3*30*20:,}회 시뮬레이션\n\n"
-        "■ 화분\n  직경 13cm × 높이 15cm\n"
-        "  정사면체 6개\n\n■ 최적 위치\n"
+        "━━━ Optimal Design ───\n\n"
+        "■ Search\n  Genetic Algorithm (GA)\n"
+        "  Population: 30 × Gen: 20\n"
+        f"  {3*30*20:,} simulations\n\n"
+        "■ Pot\n  Ø13cm × H15cm\n"
+        "  6 tetrahedron airrooms\n\n"
+        "■ Optimal positions\n"
     )
     for i,(r,z,rad) in enumerate(OPTIMIZED_AIRROOMS,1):
-        info += f"  {i}: r={r:.1f}  z={z:.1f}  ø{rad:.2f}\n"
+        info += f"  #{i}: r={r:.1f}  z={z:.1f}  r{rad:.2f}\n"
     info += (
-        "\n■ 성능\n"
-        f"  Score: {sc_exp:.0f} ({rs:.1f}배↑)\n"
-        f"  표면적: {s_exp:.0f}mm² ({rsurf:.1f}배↑)\n"
-        f"  프루닝: {p_exp}회\n  질소흡수: {upt_exp:.3f}mg\n"
-        "  Spread: 11%\n\n"
-        "━━━━━━━━━━━\nGarden with Couch"
+        "\n■ Performance\n"
+        f"  Score: {sc_exp:.0f} ({rs:.1f}x)\n"
+        f"  Segments: {seg_exp} ({seg_exp/seg_ctrl:.0f}x)\n"
+        f"  Absorption area: {eff_exp:.0f}mm² ({reff:.1f}x)\n"
+        f"  Pruning: {p_exp}\n  N uptake: {upt_exp:.3f}mg\n"
+        "\n━━━━━━━━━━━\nGarden with Couch"
     )
-    ax6.text(0.05,0.97,info,transform=ax6.transAxes,fontsize=9,
+    ax5.text(0.08,0.97,info,transform=ax5.transAxes,fontsize=9,
         fontfamily='monospace',color='#222',verticalalignment='top',
         bbox=dict(boxstyle='round,pad=0.8',facecolor='#F0F4F0',edgecolor=C["gen1"],lw=1.5))
 
+    # ── (F) Key insight callout ──
+    ax6 = fig.add_subplot(2,3,6); ax6.axis('off')
+    insight = (
+        "KEY INSIGHT\n\n"
+        "Air-pruning transforms\n"
+        "root architecture:\n\n"
+        f"  3 → {seg_exp} segments\n"
+        f"  0 → {p_exp} pruning events\n\n"
+        "Fine roots (Gen 3) have\n"
+        "10× higher absorption\n"
+        "efficiency than primary\n"
+        "roots (Gen 1).\n\n"
+        "Effective absorption area\n"
+        f"increases {reff:.1f}x\n"
+        "despite geometric area\n"
+        "being redistributed to\n"
+        "finer, more efficient roots."
+    )
+    ax6.text(0.08,0.97,insight,transform=ax6.transAxes,fontsize=9.5,
+        fontfamily='monospace',color='#1B4332',verticalalignment='top',
+        bbox=dict(boxstyle='round,pad=0.8',facecolor='#E8F5E9',edgecolor=C["gen1"],lw=1.5))
+
     cap = (
-        f"그림. 가든위드카우치 에어프루닝 화분 시뮬레이션. "
-        f"(A) 일반 화분: 3개 중심뿌리에서 2·3세대 뿌리로 자연 분기. "
-        f"(B) GwC 화분: 정사면체 에어룸(청색)과 곁뿌리 접촉 시(★) "
-        f"잔뿌리가 폭발적으로 분기하여 공간을 더 넓게 점유. "
-        f"(C) 프루닝 직후 6~10개 잔뿌리가 계속 성장. "
-        f"(D-F) 2D GA 엔진 기반 정량 비교 및 최종 설계 사양."
+        f"GwC Air-Pruning Pot Simulation. "
+        f"(A) Control: 3 primary roots with natural gen-2/3 branching. "
+        f"(B) GwC pot: tetrahedron airrooms (blue) trigger pruning (★) "
+        f"and explosive fine root branching. "
+        f"(C) Fine roots keep growing after pruning. "
+        f"(D) Segments, absorption area, and score — each on independent scales. "
+        f"(E) Final design specification. (F) Biological interpretation."
     )
     fig.text(0.5,0.02,cap,ha='center',va='bottom',fontsize=8.5,color='#444',style='italic',
         bbox=dict(boxstyle='round,pad=0.5',facecolor='#F8F9FA',edgecolor='#DDD',lw=0.5))
 
-    plt.tight_layout(rect=[0,0.06,1,0.94])
-    out = os.path.join(PROJ_ROOT,"output","gwc_ir_visualization_v2.png")
-    plt.savefig(out,dpi=200,bbox_inches='tight',facecolor='white',edgecolor='none')
+    plt.subplots_adjust(left=0.04, right=0.98, bottom=0.08, top=0.92, wspace=0.25, hspace=0.25)
+    from datetime import datetime
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    runs_dir = os.path.join(PROJ_ROOT, "output", date_str)
+    run_num = 1
+    while os.path.exists(os.path.join(runs_dir, f"run-{run_num:03d}")):
+        run_num += 1
+    run_dir = os.path.join(runs_dir, f"run-{run_num:03d}")
+    out_dir = os.path.join(run_dir, "viz")
+    os.makedirs(out_dir, exist_ok=True)
+    out = os.path.join(out_dir, "gwc_ir_visualization_v2.png")
+    plt.savefig(out,dpi=200,facecolor='white',edgecolor='none')
     print(f"\\nSaved: {out}")
     print("="*55)
     plt.close()

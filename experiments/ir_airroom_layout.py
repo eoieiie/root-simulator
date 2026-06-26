@@ -75,8 +75,8 @@ ax1.set_xlim(-POT_R*1.2, POT_R*1.2)
 ax1.set_ylim(-POT_R*1.2, POT_R*1.2)
 ax1.set_zlim(0, POT_H*1.1)
 ax1.set_xlabel('X (cm)', fontsize=8); ax1.set_ylabel('Y (cm)', fontsize=8)
-ax1.set_zlabel('높이 (cm)', fontsize=8)
-ax1.set_title('GA 최적 정사면체 에어룸 3D 배치', fontsize=13, fontweight='bold', color='#1B4332')
+ax1.set_zlabel('Height (cm)', fontsize=8)
+ax1.set_title('GA-Optimized Tetrahedron Airrooms (3D)', fontsize=13, fontweight='bold', color='#1B4332')
 ax1.view_init(elev=20, azim=35)
 ax1.grid(True, alpha=0.08)
 for d in 'xyz': getattr(ax1, f'{d}axis').pane.fill = False
@@ -112,27 +112,36 @@ for gi, (group, r, z, rad) in enumerate(airrooms_3d):
 ax2.set_xlim(-POT_R*1.15, POT_R*1.15)
 ax2.set_ylim(-POT_R*1.15, POT_R*1.15)
 ax2.set_xlabel('X (cm)', fontsize=9); ax2.set_ylabel('Y (cm)', fontsize=9)
-ax2.set_title('위에서 본 배치 (z축 기준)', fontsize=13, fontweight='bold', color='#1B4332')
+ax2.set_title('Top-Down View (z-axis)', fontsize=13, fontweight='bold', color='#1B4332')
 ax2.grid(True, alpha=0.2, ls='--')
 ax2.spines['top'].set_visible(False); ax2.spines['right'].set_visible(False)
 
 # Caption
 fig.text(0.5, 0.02,
-    '6개 정사면체 × 3방향(120°) = 18개 공간 · 각 #는 동일 (r,z) 높이의 3개체',
+    '6 tetrahedrons × 3 directions (120°) = 18 air voids · Each # = 3 at same (r,z) height',
     ha='center', fontsize=9, color='#555', style='italic')
 
 # Info table on the side
-info_text = "최적 에어룸 위치 (GA Final Run)\n\n"
+info_text = "Optimal Airroom Positions (GA Final Run)\n\n"
 for gi, (group, r, z, rad) in enumerate(airrooms_3d):
-    zone = "하" if z < 5 else ("중" if z < 9 else "상")
-    info_text += f"#{gi+1} ({zone}): r={r:.2f}cm  z={z:.2f}cm  반경={rad:.2f}cm\n"
-info_text += f"\n화분: 13cm × 15cm"
+    zone = "L" if z < 5 else ("M" if z < 9 else "U")
+    info_text += f"#{gi+1} ({zone}): r={r:.2f}cm  z={z:.2f}cm  rad={rad:.2f}cm\n"
+info_text += f"\nPot: 13cm × 15cm"
 fig.text(0.5, 0.93, info_text, ha='center', fontsize=8.5, color='#333',
          fontfamily='monospace',
          bbox=dict(boxstyle='round,pad=0.5', facecolor='#F0F4F0', edgecolor='#2D6A4F', lw=1))
 
 plt.tight_layout(rect=[0, 0.05, 1, 0.88])
-out = os.path.join(os.path.dirname(__file__), '..', 'output', 'gwc_airroom_layout.png')
+from datetime import datetime
+date_str = datetime.now().strftime("%Y-%m-%d")
+runs_dir = os.path.join(os.path.dirname(__file__), '..', 'output', date_str)
+run_num = 1
+while os.path.exists(os.path.join(runs_dir, f"run-{run_num:03d}")):
+    run_num += 1
+run_dir = os.path.join(runs_dir, f"run-{run_num:03d}")
+out_dir = os.path.join(run_dir, "viz")
+os.makedirs(out_dir, exist_ok=True)
+out = os.path.join(out_dir, "gwc_airroom_layout.png")
 plt.savefig(out, dpi=200, bbox_inches='tight', facecolor='white', edgecolor='none')
 print(f"Saved: {out}")
 plt.close()
