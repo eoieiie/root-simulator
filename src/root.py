@@ -250,10 +250,8 @@ class RootSystem:
         cg_idx = child_gen - 1
         rc = self.config.root
 
-        # Pagès (2014) allometric radius decay
-        _DMIN = 0.01  # cm — 가장 가는 뿌리 직경
-        _SLOPE = 0.25  # 중간값 (0.14~0.36 범위)
-        child_rad = _DMIN + _SLOPE * (seg.radius - _DMIN)
+        # Pagès (2014) allometric radius decay — from config
+        child_rad = rc.allometric_dmin + rc.allometric_slope * (seg.radius - rc.allometric_dmin)
 
         ang_min = rc.branch_angle_min[cg_idx] if cg_idx < len(rc.branch_angle_min) else -80.0
         ang_max = rc.branch_angle_max[cg_idx] if cg_idx < len(rc.branch_angle_max) else 80.0
@@ -285,6 +283,19 @@ class RootSystem:
         area_cm2 = 0.0
         for seg in self.segments:
             area_cm2 += 2.0 * math.pi * seg.radius * seg.length
+        return area_cm2 * 100.0
+
+    def effective_surface_area(self) -> float:
+        """세대별 흡수 효율 가중 표면적 (mm²).
+
+        Gen1 (transport): 0.1×, Gen2 (mixed): 0.5×, Gen3 (absorption): 1.0×
+        Guo et al. (2008) 23 species root order analysis.
+        """
+        efficiency = {1: 0.1, 2: 0.5, 3: 1.0}
+        area_cm2 = 0.0
+        for seg in self.segments:
+            eff = efficiency.get(seg.generation, 0.5)
+            area_cm2 += 2.0 * math.pi * seg.radius * seg.length * eff
         return area_cm2 * 100.0
 
     def surface_area_by_generation(self) -> Dict[int, float]:

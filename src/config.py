@@ -79,6 +79,8 @@ class RootConfig:
 
     # 세대별 파라미터 (index 0 = 1세대, index 1 = 2세대, ...)
     radii_cm: List[float] = field(default_factory=lambda: [0.18, 0.10, 0.04])
+    allometric_slope: float = 0.85
+    allometric_dmin: float = 0.01
     max_segment_steps: List[int] = field(default_factory=lambda: [200, 200, 150])
     """세대별 세그먼트 최대 수명(스텝). 초과 시 자연 소멸."""
     noise_deg: List[float] = field(default_factory=lambda: [8.0, 15.0, 25.0])
@@ -334,6 +336,8 @@ class SimConfig:
                 "branches_per_pruning": list(self.root.branches_per_pruning),
                 "step_size_cm": self.root.step_size_cm,
                 "radii_cm": list(self.root.radii_cm),
+                "allometric_slope": self.root.allometric_slope,
+                "allometric_dmin": self.root.allometric_dmin,
                 "max_segment_steps": list(self.root.max_segment_steps),
                 "noise_deg": list(self.root.noise_deg),
                 "max_angle_deg": list(self.root.max_angle_deg),

@@ -20,6 +20,8 @@
     "branches_per_pruning": [2, 6],
     "step_size_cm": 0.2,
     "radii_cm": [0.18, 0.10, 0.04],
+    "allometric_slope": 0.85,
+    "allometric_dmin": 0.01,
     "max_segment_steps": [200, 200, 150],
     "noise_deg": [8.0, 15.0, 25.0],
     "max_angle_deg": [20.0, 80.0, 85.0],
